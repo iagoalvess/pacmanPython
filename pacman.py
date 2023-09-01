@@ -4,6 +4,7 @@ from abc import ABCMeta, abstractmethod
 AMARELO = (255, 255, 0)
 PRETO = (0, 0, 0)
 AZUL = (0, 0, 255)
+VERMELHO = (255, 0, 0)
 VELOCIDADE = 1
 
 pygame.init()
@@ -160,9 +161,37 @@ class Pacman(ElementoJogo):
         self.linha = self.linha_intencao
         self.coluna = self.coluna_intencao
 
+class Fantasma(ElementoJogo):
+    def __init__(self, cor, tamanho):
+        self.coluna = 6.0
+        self.linha = 8.0
+        self.tamanho = tamanho
+        self.cor = cor
+
+    def pintar(self, tela):
+        fatia = self.tamanho // 8
+        px = int(self.coluna * self.tamanho)
+        py = int(self.linha * self.tamanho)
+        contorno = [(px, py + self.tamanho),
+                    (px + fatia, py + fatia * 2),
+                    (px + fatia * 2, py + fatia // 2),
+                    (px + fatia * 3, py),
+                    (px + fatia * 5, py),
+                    (px + fatia * 6, py + fatia // 2),
+                    (px + fatia * 7, py + fatia * 2),
+                    (px + self.tamanho, py + self.tamanho)]
+        pygame.draw.polygon(tela, self.cor, contorno, 0)
+
+    def calcular_regras(self):
+        pass
+
+    def processar_eventos(self, evts):
+        pass
+
 if __name__ == "__main__":
     size = 600 // 30
     pacman = Pacman(size)
+    fantasma = Fantasma(VERMELHO, size)
     cenario = Cenario(size, pacman)
 
     while True:
@@ -174,6 +203,7 @@ if __name__ == "__main__":
         janela.fill(PRETO)
         cenario.pintar(janela)
         pacman.pintar(janela)
+        fantasma.pintar(janela)
         pygame.display.update()
         pygame.time.delay(100)
 
