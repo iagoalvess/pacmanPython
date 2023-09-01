@@ -108,6 +108,9 @@ class Cenario(ElementoJogo):
         elif self.estado == 2:
             self.pintar_jogando(tela)
             self.pintar_gameover(tela)
+        elif self.estado == 3:
+            self.pintar_jogando(tela)
+            self.pintar_vitoria(tela)
 
     def pintar_centralizado(self, tela, texto):
         texto_img = fonte.render(texto, True, AMARELO)
@@ -117,6 +120,9 @@ class Cenario(ElementoJogo):
 
     def pintar_gameover(self, tela):
         self.pintar_centralizado(tela, "G A M E   O V E R")
+
+    def pintar_vitoria(self, tela):
+        self.pintar_centralizado(tela, "V O C E   V E N C E U,  P A R A B E N S ! ! !")
 
     def pintar_pausado(self, tela):
         self.pintar_centralizado(tela, "P A U S A D O")
@@ -145,6 +151,11 @@ class Cenario(ElementoJogo):
             self.calcular_regras_pausado()
         elif self.estado == 2:
             self.calcular_regras_gameover()
+        elif self.estado == 3:
+            self.calcular_regras_vitoria()
+
+    def calcular_regras_vitoria(self):
+        pass
 
     def calcular_regras_pausado(self):
         pass
@@ -169,6 +180,8 @@ class Cenario(ElementoJogo):
                     if isinstance(movivel, Pacman) and self.matriz[lin][col] == 1:
                         self.pontos += 1
                         self.matriz[lin][col] = 0
+                        if self.pontos >= 306:
+                            self.estado = 3
                 else:
                     movivel.recusar_movimento(direcoes)
 
@@ -263,8 +276,8 @@ class Pacman(ElementoJogo, Movivel):
 
 class Fantasma(ElementoJogo, Movivel):
     def __init__(self, cor, tamanho):
-        self.coluna = 6.0
-        self.linha = 2.0
+        self.coluna = 13.0
+        self.linha = 15.0
         self.tamanho = tamanho
         self.velocidade = 1
         self.direcao = ABAIXO
