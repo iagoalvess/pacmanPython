@@ -216,6 +216,8 @@ class Pacman(ElementoJogo, Movivel):
         self.raio = self.tamanho // 2
         self.coluna_intencao = self.coluna
         self.linha_intencao = self.linha
+        self.abertura = 0
+        self.vel_abertura = 1
 
     def calcular_regras(self):
         self.coluna_intencao = self.coluna + self.vel_x
@@ -229,10 +231,16 @@ class Pacman(ElementoJogo, Movivel):
         # Corpo
         pygame.draw.circle(tela, AMARELO, (self.centro_x, self.centro_y), self.raio, 0)
 
+        self.abertura += self.vel_abertura
+        if self.abertura > self.raio:
+            self.vel_abertura = -1
+        if self.abertura <= 0:
+            self.vel_abertura = 1
+
         # Boca
         canto_boca = (self.centro_x,  self.centro_y)
-        labio_sup = (self.centro_x + self.raio, self.centro_y - self.raio)
-        labio_inf = (self.centro_x + self.raio, self.centro_y)
+        labio_sup = (self.centro_x + self.raio, self.centro_y - self.abertura)
+        labio_inf = (self.centro_x + self.raio, self.centro_y + self.abertura)
         pontos = [canto_boca, labio_sup, labio_inf]
         pygame.draw.polygon(tela, PRETO, pontos, 0)
 
