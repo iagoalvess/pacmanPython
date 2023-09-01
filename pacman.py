@@ -105,12 +105,21 @@ class Cenario(ElementoJogo):
         elif self.estado == 1:
             self.pintar_jogando(tela)
             self.pintar_pausado(tela)
+        elif self.estado == 2:
+            self.pintar_jogando(tela)
+            self.pintar_gameover(tela)
 
-    def pintar_pausado(self, tela):
-        texto_img = fonte.render("P A U S A D O", True, AMARELO)
+    def pintar_centralizado(self, tela, texto):
+        texto_img = fonte.render(texto, True, AMARELO)
         texto_x = (tela.get_width() - texto_img.get_width()) // 2
         texto_y = (tela.get_height() - texto_img.get_height()) // 2
         tela.blit(texto_img, (texto_x, texto_y))
+
+    def pintar_gameover(self, tela):
+        self.pintar_centralizado(tela, "G A M E   O V E R")
+
+    def pintar_pausado(self, tela):
+        self.pintar_centralizado(tela, "P A U S A D O")
 
     def pintar_jogando(self, tela):
         for numero_linha, linha in enumerate(self.matriz):
@@ -134,8 +143,13 @@ class Cenario(ElementoJogo):
             self.calcular_regras_jogando()
         elif self.estado == 1:
             self.calcular_regras_pausado()
+        elif self.estado == 2:
+            self.calcular_regras_gameover()
 
     def calcular_regras_pausado(self):
+        pass
+
+    def calcular_regras_gameover(self):
         pass
 
     def calcular_regras_jogando(self):
@@ -147,13 +161,16 @@ class Cenario(ElementoJogo):
             direcoes = self.get_direcoes(lin, col)
             if len(direcoes) >= 3:
                 movivel.esquina(direcoes)
-            if 0 <= col_intencao < 28 and 0 <= lin_intencao < 29 and self.matriz[lin_intencao][col_intencao] != 2:
-                movivel.aceitar_movimento()
-                if isinstance(movivel, Pacman) and self.matriz[lin][col] == 1:
-                    self.pontos += 1
-                    self.matriz[lin][col] = 0
+            if isinstance(movivel, Fantasma) and movivel.linha == self.pacman.linha and movivel.coluna == self.pacman.coluna:
+                self.estado = 2
             else:
-                movivel.recusar_movimento(direcoes)
+                if 0 <= col_intencao < 28 and 0 <= lin_intencao < 29 and self.matriz[lin_intencao][col_intencao] != 2:
+                    movivel.aceitar_movimento()
+                    if isinstance(movivel, Pacman) and self.matriz[lin][col] == 1:
+                        self.pontos += 1
+                        self.matriz[lin][col] = 0
+                else:
+                    movivel.recusar_movimento(direcoes)
 
 
     def adicionar_movivel(self, obj):
