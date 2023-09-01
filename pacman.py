@@ -1,6 +1,5 @@
 import pygame
-
-# 291
+from abc import ABCMeta, abstractmethod
 
 AMARELO = (255, 255, 0)
 PRETO = (0, 0, 0)
@@ -12,7 +11,20 @@ pygame.init()
 janela = pygame.display.set_mode((800, 600), 0)
 fonte = pygame.font.SysFont("arial", 24, True, False)
 
-class Cenario:
+class ElementoJogo(metaclass=ABCMeta):
+    @abstractmethod
+    def pintar(self, tela):
+        pass
+
+    @abstractmethod
+    def calcular_regras(self):
+        pass
+
+    @abstractmethod
+    def processar_eventos(self, eventos):
+        pass
+
+class Cenario(ElementoJogo):
     def __init__(self, tamanho, pac):
         self.pacman = pac
         self.pontos = 0
@@ -80,7 +92,12 @@ class Cenario:
         pontos_x = 30 * self.tamanho
         img_pontos = fonte.render("Pontos: {}".format(self.pontos), True, AMARELO)
         tela.blit(img_pontos, (pontos_x, 50))
-class Pacman:
+
+    def processar_eventos(self, evts):
+        for e in evts:
+            if e.type == pygame.QUIT:
+                exit()
+class Pacman(ElementoJogo):
     def __init__(self, tamanho):
         self.linha = 1
         self.coluna = 1
@@ -162,7 +179,5 @@ if __name__ == "__main__":
 
         # Eventos
         eventos = pygame.event.get()
-        for e in eventos:
-            if e.type == pygame.QUIT:
-                exit()
         pacman.processar_eventos(eventos)
+        cenario.processar_eventos(eventos)
