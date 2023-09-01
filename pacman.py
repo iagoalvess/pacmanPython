@@ -10,10 +10,12 @@ VELOCIDADE = 1
 pygame.init()
 
 janela = pygame.display.set_mode((800, 600), 0)
+fonte = pygame.font.SysFont("arial", 24, True, False)
 
 class Cenario:
     def __init__(self, tamanho, pac):
         self.pacman = pac
+        self.pontos = 0
         self.tamanho = tamanho
         self.matriz = [
             [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
@@ -62,6 +64,7 @@ class Cenario:
     def pintar(self, tela):
         for numero_linha, linha in enumerate(self.matriz):
             self.pintar_linha(tela, numero_linha, linha)
+        self.print_pontos(tela)
 
     def calcular_regras(self):
         col = self.pacman.coluna_intencao
@@ -69,6 +72,14 @@ class Cenario:
         if 0 <= col < 28 and 0 <= lin < 29:
             if self.matriz[lin][col] != 2:
                 self.pacman.aceitar_movimento()
+                if self.matriz[lin][col] == 1:
+                    self.pontos += 1
+                    self.matriz[lin][col] = 0
+
+    def print_pontos(self, tela):
+        pontos_x = 30 * self.tamanho
+        img_pontos = fonte.render("Pontos: {}".format(self.pontos), True, AMARELO)
+        tela.blit(img_pontos, (pontos_x, 50))
 class Pacman:
     def __init__(self, tamanho):
         self.linha = 1
