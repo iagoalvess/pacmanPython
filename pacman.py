@@ -53,6 +53,7 @@ class Cenario(ElementoJogo):
         self.pacman = pac
         self.moviveis = []
         self.pontos = 0
+        self.estado = 0
         self.tamanho = tamanho
         self.matriz = [
             [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
@@ -99,6 +100,19 @@ class Cenario(ElementoJogo):
                 pygame.draw.circle(tela, AMARELO, (x + half, y + half), self.tamanho // 10, 0)
 
     def pintar(self, tela):
+        if self.estado == 0:
+            self.pintar_jogando(tela)
+        elif self.estado == 1:
+            self.pintar_jogando(tela)
+            self.pintar_pausado(tela)
+
+    def pintar_pausado(self, tela):
+        texto_img = fonte.render("P A U S A D O", True, AMARELO)
+        texto_x = (tela.get_width() - texto_img.get_width()) // 2
+        texto_y = (tela.get_height() - texto_img.get_height()) // 2
+        tela.blit(texto_img, (texto_x, texto_y))
+
+    def pintar_jogando(self, tela):
         for numero_linha, linha in enumerate(self.matriz):
             self.pintar_linha(tela, numero_linha, linha)
         self.print_pontos(tela)
@@ -116,6 +130,15 @@ class Cenario(ElementoJogo):
         return direcoes
 
     def calcular_regras(self):
+        if self.estado == 0:
+            self.calcular_regras_jogando()
+        elif self.estado == 1:
+            self.calcular_regras_pausado()
+
+    def calcular_regras_pausado(self):
+        pass
+
+    def calcular_regras_jogando(self):
         for movivel in self.moviveis:
             lin = int(movivel.linha)
             col = int(movivel.coluna)
@@ -145,6 +168,12 @@ class Cenario(ElementoJogo):
         for e in evts:
             if e.type == pygame.QUIT:
                 exit()
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_p:
+                    if self.estado == 0:
+                        self.estado = 1
+                    else:
+                        self.estado = 0
 class Pacman(ElementoJogo, Movivel):
     def __init__(self, tamanho):
         self.linha = 1
