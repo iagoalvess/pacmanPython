@@ -19,6 +19,19 @@ pygame.init()
 janela = pygame.display.set_mode((800, 600), 0)
 fonte = pygame.font.SysFont("arial", 24, True, False)
 
+class Movivel(metaclass=ABCMeta):
+    @abstractmethod
+    def aceitar_movimento(self):
+        pass
+
+    @abstractmethod
+    def recusar_movimento(self, direcoes):
+        pass
+
+    @abstractmethod
+    def esquina(self, direcoes):
+        pass
+
 class ElementoJogo(metaclass=ABCMeta):
     @abstractmethod
     def pintar(self, tela):
@@ -36,6 +49,7 @@ class Cenario(ElementoJogo):
     def __init__(self, tamanho, pac, fan):
         self.pacman = pac
         self.fantasma = fan
+        self.moviveis = [pac, fan]
         self.pontos = 0
         self.tamanho = tamanho
         self.matriz = [
@@ -100,24 +114,19 @@ class Cenario(ElementoJogo):
         return direcoes
 
     def calcular_regras(self):
-        direcoes = self.get_direcoes(self.fantasma.linha, self.fantasma.coluna)
-        if len(direcoes) >= 3:
-            self.fantasma.esquina(direcoes)
-        col = self.pacman.coluna_intencao
-        lin = self.pacman.linha_intencao
-        if 0 <= col < 28 and 0 <= lin < 29:
-            if self.matriz[lin][col] != 2:
-                self.pacman.aceitar_movimento()
-                if self.matriz[lin][col] == 1:
-                    self.pontos += 1
-                    self.matriz[lin][col] = 0
+        for movivel in self.moviveis:
+            lin = int(movivel.linha)
+            col = int(movivel.coluna)
+            lin_intencao = int(movivel.linha_intencao)
+            col_intencao = int(movivel.coluna_intencao)
+            direcoes = self.get_direcoes(lin, col)
+            if len(direcoes) >= 3:
+                movivel.esquina(direcoes)
+            if 0 <= col_intencao < 28 and 0 <= lin_intencao < 29 and self.matriz[lin_intencao][col_intencao] != 2:
+                movivel.aceitar_movimento()
+            else:
+                movivel.recusar_movimento(direcoes)
 
-        col = int(self.fantasma.coluna_intencao)
-        lin = int(self.fantasma.linha_intencao)
-        if 0 <= col < 28 and 0 <= lin < 29 and self.matriz[lin][col] != 2:
-            self.fantasma.aceitar_movimento()
-        else:
-            self.fantasma.recusar_movimento(direcoes)
 
     def print_pontos(self, tela):
         pontos_x = 30 * self.tamanho
@@ -128,7 +137,7 @@ class Cenario(ElementoJogo):
         for e in evts:
             if e.type == pygame.QUIT:
                 exit()
-class Pacman(ElementoJogo):
+class Pacman(ElementoJogo, Movivel):
     def __init__(self, tamanho):
         self.linha = 1
         self.coluna = 1
@@ -191,7 +200,14 @@ class Pacman(ElementoJogo):
         self.linha = self.linha_intencao
         self.coluna = self.coluna_intencao
 
-class Fantasma(ElementoJogo):
+    def recusar_movimento(self, direcoes):
+        self.linha_intencao = self.linha
+        self.coluna_intencao = self.coluna
+
+    def esquina(self, direcoes):
+        pass
+
+class Fantasma(ElementoJogo, Movivel):
     def __init__(self, cor, tamanho):
         self.coluna = 6.0
         self.linha = 2.0
