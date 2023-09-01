@@ -8,6 +8,9 @@ PRETO = (0, 0, 0)
 AZUL = (0, 0, 255)
 VERMELHO = (255, 0, 0)
 BRANCO = (255, 255, 255)
+LARANJA = (255, 140, 0)
+ROSA = (255, 15, 192)
+CIANO = (0, 255, 255)
 VELOCIDADE = 1
 ACIMA = 1
 ABAIXO = 2
@@ -46,10 +49,9 @@ class ElementoJogo(metaclass=ABCMeta):
         pass
 
 class Cenario(ElementoJogo):
-    def __init__(self, tamanho, pac, fan):
+    def __init__(self, tamanho, pac):
         self.pacman = pac
-        self.fantasma = fan
-        self.moviveis = [pac, fan]
+        self.moviveis = []
         self.pontos = 0
         self.tamanho = tamanho
         self.matriz = [
@@ -124,9 +126,15 @@ class Cenario(ElementoJogo):
                 movivel.esquina(direcoes)
             if 0 <= col_intencao < 28 and 0 <= lin_intencao < 29 and self.matriz[lin_intencao][col_intencao] != 2:
                 movivel.aceitar_movimento()
+                if isinstance(movivel, Pacman) and self.matriz[lin][col] == 1:
+                    self.pontos += 1
+                    self.matriz[lin][col] = 0
             else:
                 movivel.recusar_movimento(direcoes)
 
+
+    def adicionar_movivel(self, obj):
+        self.moviveis.append(obj)
 
     def print_pontos(self, tela):
         pontos_x = 30 * self.tamanho
@@ -274,20 +282,34 @@ class Fantasma(ElementoJogo, Movivel):
 if __name__ == "__main__":
     size = 600 // 30
     pacman = Pacman(size)
-    fantasma = Fantasma(VERMELHO, size)
-    cenario = Cenario(size, pacman, fantasma)
+    fantasma_vermelho = Fantasma(VERMELHO, size)
+    fantasma_ciano = Fantasma(CIANO, size)
+    fantasma_laranja = Fantasma(LARANJA, size)
+    fantasma_rosa = Fantasma(ROSA, size)
+    cenario = Cenario(size, pacman)
+    cenario.adicionar_movivel(pacman)
+    cenario.adicionar_movivel(fantasma_vermelho)
+    cenario.adicionar_movivel(fantasma_ciano)
+    cenario.adicionar_movivel(fantasma_laranja)
+    cenario.adicionar_movivel(fantasma_rosa)
 
     while True:
         # Regras
         pacman.calcular_regras()
-        fantasma.calcular_regras()
+        fantasma_vermelho.calcular_regras()
+        fantasma_ciano.calcular_regras()
+        fantasma_laranja.calcular_regras()
+        fantasma_rosa.calcular_regras()
         cenario.calcular_regras()
 
         # Elementos
         janela.fill(PRETO)
         cenario.pintar(janela)
         pacman.pintar(janela)
-        fantasma.pintar(janela)
+        fantasma_vermelho.pintar(janela)
+        fantasma_ciano.pintar(janela)
+        fantasma_laranja.pintar(janela)
+        fantasma_rosa.pintar(janela)
         pygame.display.update()
         pygame.time.delay(100)
 
