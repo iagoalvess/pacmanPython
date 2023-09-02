@@ -1,7 +1,4 @@
 import random
-
-# 316
-
 import pygame
 from abc import ABCMeta, abstractmethod
 
