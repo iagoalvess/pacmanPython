@@ -1,5 +1,7 @@
 import random
 
+# 316
+
 import pygame
 from abc import ABCMeta, abstractmethod
 
@@ -54,6 +56,7 @@ class Cenario(ElementoJogo):
         self.moviveis = []
         self.pontos = 0
         self.estado = 0
+        self.vidas = 3
         self.tamanho = tamanho
         self.matriz = [
             [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
@@ -130,7 +133,7 @@ class Cenario(ElementoJogo):
     def pintar_jogando(self, tela):
         for numero_linha, linha in enumerate(self.matriz):
             self.pintar_linha(tela, numero_linha, linha)
-        self.print_pontos(tela)
+        self.print_score(tela)
 
     def get_direcoes(self, linha, coluna):
         direcoes = []
@@ -173,7 +176,12 @@ class Cenario(ElementoJogo):
             if len(direcoes) >= 3:
                 movivel.esquina(direcoes)
             if isinstance(movivel, Fantasma) and movivel.linha == self.pacman.linha and movivel.coluna == self.pacman.coluna:
-                self.estado = 2
+                self.vidas -= 1
+                if self.vidas <= 0:
+                    self.estado = 2
+                else:
+                    self.pacman.linha = 1
+                    self.pacman.coluna = 1
             else:
                 if 0 <= col_intencao < 28 and 0 <= lin_intencao < 29 and self.matriz[lin_intencao][col_intencao] != 2:
                     movivel.aceitar_movimento()
@@ -189,10 +197,12 @@ class Cenario(ElementoJogo):
     def adicionar_movivel(self, obj):
         self.moviveis.append(obj)
 
-    def print_pontos(self, tela):
+    def print_score(self, tela):
         pontos_x = 30 * self.tamanho
         img_pontos = fonte.render("Pontos: {}".format(self.pontos), True, AMARELO)
+        vidas_img = fonte.render("Vidas: {}".format(self.vidas), True, AMARELO)
         tela.blit(img_pontos, (pontos_x, 50))
+        tela.blit(vidas_img, (pontos_x, 100))
 
     def processar_eventos(self, evts):
         for e in evts:
